@@ -1,0 +1,2 @@
+KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="add", RUN+="/usr/bin/mkdir -p /media/%k", RUN+="/bin/mount /dev/%k /media/%k"
+KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="remove", RUN+="/bin/umount /media/%k", RUN+="/usr/bin/rmdir /media/%k"
