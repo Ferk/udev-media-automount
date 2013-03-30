@@ -1,2 +1,2 @@
-KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="add", RUN+="/usr/bin/mkdir -p /media/%E{ID_VENDOR}-%E{ID_MODEL}-%k", RUN+="/bin/mount /dev/%k /media/%E{ID_VENDOR}-%E{ID_MODEL}-%k"
-KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="remove", RUN+="/bin/umount /media/%E{ID_VENDOR}-%E{ID_MODEL}-%k", RUN+="/usr/bin/rmdir /media/%E{ID_VENDOR}-%E{ID_MODEL}-%k"
+KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="add", RUN+="/usr/bin/mkdir -p /usb/%E{ID_VENDOR}-%E{ID_MODEL}-%k", RUN+="/bin/mount /dev/%k /usb/%E{ID_VENDOR}-%E{ID_MODEL}-%k"
+KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="remove", RUN+="/bin/umount /usb/%E{ID_VENDOR}-%E{ID_MODEL}-%k", RUN+="/usr/bin/rmdir /usb/%E{ID_VENDOR}-%E{ID_MODEL}-%k"
