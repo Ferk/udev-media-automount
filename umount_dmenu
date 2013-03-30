@@ -11,7 +11,11 @@ if [[ $EUID != 0 ]]; then
     exit 1
 fi
 
-media="$(awk '/\/media/ {print $2}' /etc/mtab | cut -d / -f 3 | dmenu)"
+media="$(awk '/\/media/ {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select USB to remove")"
+if [[ "$media" == "" || ! -d "/media/$media" ]]; then
+    exit 1
+fi
+
 if umount "/media/$media"; then
     dmenu_notify "You can now safely remove $media"
 else
