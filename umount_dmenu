@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# use dmenu to choose what to unmount
+
+# $1 = msg
+dmenu_notify() {
+    : | dmenu -p "$1 (press enter)"
+}
+
+if [[ $EUID != 0 ]]; then 
+    dmenu_notify "Please run it as root"
+    exit 1
+fi
+
+media="$(awk '/\/media/ {print $2}' /etc/mtab | cut -d / -f 3 | dmenu)"
+if umount "/media/$media"; then
+    dmenu_notify "You can now safely remove $media"
+else
+    dmenu_notify "Some apps are using $media"
+fi
