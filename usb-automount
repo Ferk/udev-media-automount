@@ -13,7 +13,7 @@ name="$(echo "$req" | cut -d - -f 3-)"
 usb="$name-$dev"
 if [[ "$action" == mount ]]; then
     mkdir -p "/usb/$usb"
-    mount "/dev/$dev" "/usb/$usb"
+    mount "/dev/$dev" "/usb/$usb" || rmdir "/usb/$usb"
 elif [[ "$action" == umount ]]; then
     [[ "$usb" == "" || ! -d "/usb/$usb" ]] && exit 1
     umount "/usb/$usb"
