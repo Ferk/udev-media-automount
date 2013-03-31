@@ -1,21 +1,25 @@
 #!/bin/bash
-#$1 = <action>-<dev>-<name>
+#$1 = <action>/<dev>/<name>
 
 [[ $EUID != 0 ]] && exit 1
 
-action="$(echo "$1" | cut -d - -f 1)"
-dev="$(echo "$1" | cut -d - -f 2)"
-name="$(echo "$1 | cut -d - -f 3-")"
+req="$(echo "$1" | tr / -)"
+#debug
+echo "$(date): $req" >> /tmp/usb-automount
+
+action="$(echo "$req" | cut -d - -f 1)"
+dev="$(echo "$req" | cut -d - -f 2)"
+name="$(echo "$req" | cut -d - -f 3-)"
 usb="$name-$dev"
 if [[ "$action" == mount ]]; then
     mkdir -p "/usb/$usb"
     mount "/dev/$dev" "/usb/$usb"
 elif [[ "$action" == umount ]]; then
-    [[ ! -d "/usb/$usb" ]] && exit 1
+    [[ "$usb" == "" || ! -d "/usb/$usb" ]] && exit 1
     umount "/usb/$usb"
     rmdir "/usb/$usb"
 else
     exit 1
 fi
 
-
+exit 0
