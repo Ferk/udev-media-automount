@@ -7,6 +7,11 @@ req="$(echo "$1" | tr / -)"
 #debug
 echo "$(date): $req" >> /tmp/usb-automount
 
+# clean
+for usb in $(ls /usb); do
+    mountpoint -q "/usb/$usb" || rmdir "/usb/$usb"
+done
+
 action="$(echo "$req" | cut -d - -f 1)"
 dev="$(echo "$req" | cut -d - -f 2)"
 name="$(echo "$req" | cut -d - -f 3-)"
