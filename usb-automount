@@ -18,7 +18,16 @@ name="$(cut -d - -f 3- <<<"$req")"
 usb="$name-$dev"
 if [[ "$action" == mount ]]; then
     mkdir -p "/usb/$usb"
-    mount "/dev/$dev" "/usb/$usb" || rmdir "/usb/$usb"
+    if mount "/dev/$dev" "/usb/$usb"; then
+        for username in $(users); do
+            if [[ $(id -u "$username") != 0 ]]; then
+                su "$username" xdg-open "/usb/$usb"
+                break
+            fi
+        done
+    else
+        rmdir "/usb/$usb" 
+    fi
 elif [[ "$action" == umount ]]; then
     [[ "$usb" == "" || ! -d "/usb/$usb" ]] && exit 1
     umount "/usb/$usb"
