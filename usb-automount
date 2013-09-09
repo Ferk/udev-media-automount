@@ -3,18 +3,15 @@
 
 [[ $EUID != 0 ]] && exit 1
 
-req="$(tr / - <<<"$1")"
 #debug
-echo "$(date): $req" >> /tmp/usb-automount
+echo "$(date): $1" >> /tmp/usb-automount
 
 # clean
 for usb in $(ls /usb); do
     mountpoint -q "/usb/$usb" || rmdir "/usb/$usb"
 done
 
-action="$(cut -d - -f 1 <<<"$req")"
-dev="$(cut -d - -f 2 <<<"$req")"
-name="$(cut -d - -f 3- <<<"$req")"
+IFS=/ read action dev name <<<"$1"
 usb="$name-$dev"
 if [[ "$action" == mount ]]; then
     mkdir -p "/usb/$usb"
@@ -26,10 +23,10 @@ if [[ "$action" == mount ]]; then
             fi
         done
     else
-        rmdir "/usb/$usb" 
+        rmdir "/usb/$usb"
     fi
 elif [[ "$action" == umount ]]; then
-    [[ "$usb" == "" || ! -d "/usb/$usb" ]] && exit 1
+    [[ ! "$usb" || ! -d "/usb/$usb" ]] && exit 1
     umount "/usb/$usb"
     rmdir "/usb/$usb"
 else

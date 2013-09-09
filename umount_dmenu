@@ -6,13 +6,13 @@ dmenu_notify() {
     : | dmenu -p "$1 (press enter)"
 }
 
-if [[ $EUID != 0 ]]; then 
+if [[ $EUID != 0 ]]; then
     dmenu_notify "Please run it as root"
     exit 1
 fi
 
 usb="$(awk '/ \/usb\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select USB to remove")"
-if [[ "$usb" == "" || ! -d "/usb/$usb" ]]; then
+if [[ ! "$usb" || ! -d "/usb/$usb" ]]; then
     exit 1
 fi
 
