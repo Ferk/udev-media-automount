@@ -11,7 +11,7 @@ if [[ $EUID != 0 ]]; then
     exit 1
 fi
 
-usb="$(awk '/ \/usb\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select USB to remove")"
+usb="$(awk '$2 ~ /^\/usb\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select USB to remove")"
 if [[ ! "$usb" || ! -d "/usb/$usb" ]]; then
     exit 1
 fi

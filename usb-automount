@@ -2,16 +2,14 @@
 #$1 = <action>/<dev>/<name>
 
 [[ $EUID != 0 ]] && exit 1
-
-#debug
-echo "$(date): $1" >> /tmp/usb-automount
+shopt -s nullglob
 
 # clean
-for usb in $(ls /usb); do
-    mountpoint -q "/usb/$usb" || rmdir "/usb/$usb"
+for usb in /usb/*; do
+    mountpoint -q "$usb" || rmdir "$usb"
 done
 
-IFS=/ read action dev name <<<"$1"
+IFS=/ read -r action dev name <<<"$1"
 usb="$name-$dev"
 if [[ "$action" == mount ]]; then
     mkdir -p "/usb/$usb"
