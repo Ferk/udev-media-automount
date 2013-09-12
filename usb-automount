@@ -10,6 +10,7 @@ for usb in /usb/*; do
 done
 
 IFS=/ read -r action dev name <<<"$1"
+name="${name//\//-}"
 usb="$name-$dev"
 if [[ "$action" == mount ]]; then
     mkdir -p "/usb/$usb"
