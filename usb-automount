@@ -21,8 +21,7 @@ if [[ "$action" == mount ]]; then
 	fi
 elif [[ "$action" == umount ]]; then
 	[[ ! "$usb" || ! -d "/usb/$usb" ]] && exit 1
-	umount "/usb/$usb"
-	rmdir "/usb/$usb"
+	umount "/usb/$usb" && rmdir "/usb/$usb"
 else
 	exit 1
 fi

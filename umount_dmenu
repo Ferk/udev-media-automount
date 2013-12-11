@@ -3,21 +3,22 @@
 
 # $1 = msg
 dmenu_notify() {
-    : | dmenu -p "$1 (press enter)"
+	: | dmenu -p "$1 (press enter)"
 }
 
 if [[ $EUID != 0 ]]; then
-    dmenu_notify "Please run it as root"
-    exit 1
+	dmenu_notify "Please run it as root"
+	exit 1
 fi
 
 usb="$(awk '$2 ~ /^\/usb\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select USB to remove")"
 if [[ ! "$usb" || ! -d "/usb/$usb" ]]; then
-    exit 1
+	exit 1
 fi
 
 if umount "/usb/$usb"; then
-    dmenu_notify "You can now safely remove $usb"
+	rmdir "/usb/$usb"
+	dmenu_notify "You can now safely remove $usb"
 else
-    dmenu_notify "Some apps are using $usb"
+	dmenu_notify "Some apps are using $usb"
 fi
