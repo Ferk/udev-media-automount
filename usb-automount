@@ -6,26 +6,25 @@ shopt -s nullglob
 
 # clean
 for usb in /usb/*; do
-    mountpoint -q "$usb" || rmdir "$usb"
+	mountpoint -q "$usb" || rmdir "$usb"
 done
 
 IFS=/ read -r action dev name <<<"$1"
 name="${name//\//-}"
 usb="$name-$dev"
 if [[ "$action" == mount ]]; then
-    mkdir -p "/usb/$usb"
-    if mount "/dev/$dev" "/usb/$usb"; then
-        username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
-        [[ "$username" ]] && su "$username" xdg-open "/usb/$usb"
-    else
-        rmdir "/usb/$usb"
-    fi
+	mkdir -p "/usb/$usb"
+	mount "/dev/$dev" "/usb/$usb" || rmdir "/usb/$usb"
+	if [[ -d "/usb/$usb" ]]; then
+		username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
+		[[ "$username" ]] && DISPLAY=:0 runuser -u "$username" xdg-open "/usb/$usb"
+	fi
 elif [[ "$action" == umount ]]; then
-    [[ ! "$usb" || ! -d "/usb/$usb" ]] && exit 1
-    umount "/usb/$usb"
-    rmdir "/usb/$usb"
+	[[ ! "$usb" || ! -d "/usb/$usb" ]] && exit 1
+	umount "/usb/$usb"
+	rmdir "/usb/$usb"
 else
-    exit 1
+	exit 1
 fi
 
 exit 0
