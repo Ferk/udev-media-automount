@@ -7,7 +7,7 @@ This is intended for simple systems that don't want or can't run the udisks2 dae
 
 This combines the previous udev rules I was using in my xdg_config repository with some structure and ideas taken from tylorchu's usb-automount.
 
-Every device that is inserted and isn't already configured in /etc/fstab will be mounted by media-automount.
+Every device that is inserted and isn't already configured in /etc/fstab will be mounted by media-automount. This includes not only usb devices but also card readers and other media with a /dev/sd* device.
 
 If there are devices you don't want to automount neither at boot nor with media-automount, you can add them in /etc/fstab with the option 'noauto'.
 

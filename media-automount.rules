@@ -1,14 +1,4 @@
 # -*- conf-unix -*-
-#
-#
-
-# start at sdb to ignore the system hard drive
-KERNEL!="sd[c-z]*",	GOTO="media_automount_end"
-
-ACTION=="add",		PROGRAM!="/sbin/blkid %N", GOTO="media_automount_end"
-
-# import some useful filesystem info as variables
-IMPORT{program}="/sbin/blkid -o udev -p %N"
 
 # Ever since early systemd-udevd merge, we are forced to use some
 # hack to be able to run long lived processes from udev (which is required for 
@@ -18,11 +8,8 @@ IMPORT{program}="/sbin/blkid -o udev -p %N"
 # mounting has to be done as a separate "service"
 
 # mount the device when added
-ACTION=="add",		RUN+="/usr/bin/systemctl restart media-automount@mount-%k-%E{ID_FS_TYPE}-%E{ID_FS_LABEL}.service"
+KERNEL=="sd[a-z]*", ACTION=="add",	RUN+="/usr/bin/systemctl restart media-automount@%k.service"
 
 # clean up after device removal
-ACTION=="remove",	RUN+="/usr/bin/systemctl restart media-automount@umount-%k-%E{ID_FS_TYPE}-%E{ID_FS_LABEL}.service"
-
-# exit
-LABEL="media_automount_end"
+KERNEL=="sd[a-z]*", ACTION=="remove",	RUN+="/usr/bin/systemctl restart media-automount@%k.service"
 
