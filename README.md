@@ -13,7 +13,7 @@ If there are devices you don't want to automount neither at boot nor with media-
 
 The mount options might differ to the filesystem type for the device plugged in. E.g. vFAT and NTFS devices will be mounted with the "flush" option to try to prevent damage on accidental removals of the device with unclean umounts. Also whenever ntfs-3g is available, it will be used to mount ntfs devices.
 
-The mount directory will appear in /media/ under a name with pattern: "<LABEL_OF_THE_FS>.<FS_TYPE>"
+The mount directory will appear in /media/ under a name with pattern: "LABEL_OF_THE_FS.FS_TYPE"
 
 
 Due to changes in udev (long running processes are killed), it's necessary to use systemd for spawning a mounting service.
