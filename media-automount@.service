@@ -1,4 +1,4 @@
 [Service]
 Type=forking
 GuessMainPID=no
-ExecStart=/usr/bin/usb-automount %I
+ExecStart=/usr/bin/media-automount %I

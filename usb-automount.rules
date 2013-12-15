@@ -1,2 +1,0 @@
-KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="add", RUN+="/usr/bin/systemctl restart usb-automount@mount-%k-%E{ID_VENDOR}-%E{ID_MODEL}.service"
-KERNEL=="sd[a-z]*", SUBSYSTEMS=="usb", ACTION=="remove", RUN+="/usr/bin/systemctl restart usb-automount@umount-%k-%E{ID_VENDOR}-%E{ID_MODEL}.service"

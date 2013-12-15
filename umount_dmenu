@@ -11,14 +11,14 @@ if [[ $EUID != 0 ]]; then
 	exit 1
 fi
 
-usb="$(awk '$2 ~ /^\/usb\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select USB to remove")"
-if [[ ! "$usb" || ! -d "/usb/$usb" ]]; then
+dir="$(awk '$2 ~ /^\/media\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select media device to remove")"
+if [[ ! "$dir" || ! -d "/media/$dir" ]]; then
 	exit 1
 fi
 
-if umount "/usb/$usb"; then
-	rmdir "/usb/$usb"
-	dmenu_notify "You can now safely remove $usb"
+if umount "/media/$dir"; then
+	rmdir "/media/$dir"
+	dmenu_notify "You can now safely remove $dir"
 else
-	dmenu_notify "Some apps are using $usb"
+	dmenu_notify "Some apps are using $dir"
 fi

@@ -1,0 +1,82 @@
+#!/bin/bash
+#$1 = <action>/<dev>/<type>/<label>
+
+# Directory to use for mounting the devices
+mdir=/media/
+# Default options to use for mounting
+mopts='errors=remount-ro,relatime,utf8,user'
+
+[[ $EUID != 0 ]] && {
+    echo "This tool requires root permissions"
+    exit 1
+}
+shopt -s nullglob
+
+log() {
+    logger -st "media-automount" "$*"
+}
+
+# clean
+for dir in "$mdir"/*; do
+    mountpoint -q "$dir" || rmdir "$dir"
+done
+
+IFS=/ read -r action dev type label <<<"$1"
+dir="${mdir}/${label:-$dev}.$type"
+
+case $type in
+    vfat)
+	mopts="$mopts,flush,gid=100,dmask=000,fmask=111"
+	;;
+    ntfs)
+	mopts="$mopts,flush"
+	hash ntfs-3g && mtype="ntfs-3g"
+	;;
+    *)
+	mopts="$mopts,sync"
+	;;
+esac
+
+
+case $action in
+
+    mount)
+	# Don't automount devices that are already in fstab (unless they use 'noauto')
+	if grep /etc/fstab -e "^[ \t]*/dev/$dev[ \t]" | grep -qv 'noauto'
+	then
+	    log "device $dev is already in fstab with 'auto' option, the media-automount service won't manage this entry"
+	    exit 1
+	fi
+	
+	log "mounting device $dev in $dir"
+	mkdir -p "$dir"
+	if mount -t "${mtype:-auto}" -o "$mopts" "/dev/$dev" "$dir"
+	then
+	    # Notify
+	    username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
+	    [[ "$username" ]] && DISPLAY=:0 runuser -u "$username" xdg-open "$dir"
+	    log "Device successfully mounted: $dir"
+	    exit 0
+	else
+	    log "Mount error: $?"
+	    rmdir "$dir"
+	    exit 1
+	fi
+	;;
+
+    umount)
+	log "Umounting device $dev from $dir"
+	if [ -d "$dir" ]
+	then
+	    umount "$dir" && rmdir "$dir"
+	else
+	    log "Missing directory: $dir"
+	    exit 1
+	fi
+	;;
+
+    *)
+	log "Wrong parameters! action/dev/type/label = '$1'"
+	exit 1
+	;;
+esac
