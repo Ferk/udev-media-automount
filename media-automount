@@ -57,7 +57,7 @@ eval $(blkid -po export $dev)
 if grep /etc/fstab -q -e "^[ \t]*$dev[ \t]" -e "${UUID}" -e "${LABEL}"
 then
     log "$dev already in /etc/fstab, automount won't manage this entry"
-    #exit 1
+    exit 1
 fi
 
 # directory name
