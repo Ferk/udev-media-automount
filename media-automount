@@ -21,7 +21,7 @@ then
     log "missing arguments! a device name must be provided"
     exit 1
 else
-    dev=/dev/$1  
+    dev=/dev/${1##*/}  
 fi
 
 # Check if the device exists, if not but mounted, umount it
