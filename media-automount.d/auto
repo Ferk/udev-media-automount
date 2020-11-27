@@ -1,0 +1,8 @@
+# -*- sh -*-
+
+# Options to use for auto-mounting generic filesystems
+AUTOMOUNT_OPTS=remount-ro,relatime,utf8,user,sync
+
+# Type to use for auto-mounting generic filesystems
+AUTOMOUNT_TYPE=auto
+

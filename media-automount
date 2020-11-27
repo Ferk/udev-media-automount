@@ -1,10 +1,16 @@
 #!/bin/sh
 #$1 = <dev>
 
-# Directory to use for mounting the devices
-mdir=/media/
 # Default options to use for mounting
-mopts='errors=remount-ro,relatime,utf8,user'
+AUTOMOUNT_OPTS='errors=remount-ro,relatime,utf8,user'
+# Default type to use for mounting
+AUTOMOUNT_TYPE='auto'
+
+# Directory to look for type-specific settings
+confdir=/etc/media-automount.d
+
+# Directory to use as parent media dir for mountpoints
+mediadir=/media
 
 [[ $EUID != 0 ]] && {
     echo "This tool requires root permissions"
@@ -44,7 +50,7 @@ then
     fi
 
     # cleanup
-    for dir in "$mdir"/*
+    for dir in "$mediadir"/*
     do
         [ -d "$dir" ] && ! mountpoint -q "$dir" && rmdir "$dir"
     done
@@ -74,32 +80,28 @@ then
 fi
 
 # directory name
-dir="${mdir}/${LABEL:-${dev##*/}}.$TYPE"
+AUTOMOUNT_DIR="${mediadir}/${LABEL:-${dev##*/}}.$TYPE"
 
-case $TYPE in
-    vfat)
-        mopts="$mopts,flush,gid=100,dmask=000,fmask=111"
-        ;;
-    ntfs)
-        mopts="$mopts,flush"
-        hash ntfs-3g && mtype="ntfs-3g"
-        ;;
-    *)
-        mopts="$mopts,sync"
-        ;;
-esac
+# Load Filesystem-specific configuration for mounting
+if [ -e "%confdir/$TYPE" ]
+then
+	source "$confdir/$TYPE"
+elif [ -e "$confdir/auto" ]
+then
+	source "$confdir/auto"
+fi
 
-log "mounting device $dev in $dir"
-mkdir -p "$dir"
-if mount -t "${mtype:-auto}" -o "$mopts" "$dev" "$dir"
+log "mounting device $dev in $AUTOMOUNT_DIR"
+mkdir -p "$AUTOMOUNT_DIR"
+if mount -t "$AUTOMOUNT_TYPE" -o "$AUTOMOUNT_OPTS" "$dev" "$AUTOMOUNT_DIR"
 then
     # Notify
     username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
-    [[ "$username" ]] && DISPLAY=:0 runuser -u "$username" xdg-open "$dir"
-    log "Device successfully mounted: $dir"
+    [[ "$username" ]] && DISPLAY=:0 runuser -u "$username" xdg-open "$AUTOMOUNT_DIR"
+    log "Device successfully mounted: $AUTOMOUNT_DIR"
     exit 0
 else
     log "Mount error: $?"
-    rmdir "$dir"
+    rmdir "$AUTOMOUNT_DIR"
     exit 1
 fi
