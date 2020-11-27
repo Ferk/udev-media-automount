@@ -54,6 +54,13 @@ fi
 # Load additional info for the block device
 eval $(blkid -po export $dev)
 
+# Devices with unknown type will be ignored
+if [ -z "$TYPE" ]
+then
+    log "$dev has no known filesystem type, ignoring mount request"
+	exit 0
+fi
+
 # Check /etc/fstab for an entry corresponding to the device
 [ "$UUID" ] && fstab=$(grep /etc/fstab -e "^[^#]*${UUID/\-/\\\-}") || \
 [ "$LABEL" ] && fstab=$(grep /etc/fstab -e "^[^#]*${LABEL/\-/\\\-}") || \
