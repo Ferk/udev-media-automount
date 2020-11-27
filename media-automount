@@ -29,23 +29,23 @@ if ! [ -b $dev ]
 then
     if grep /etc/mtab -qe "^$dev"
     then
-	log "$dev device removed, umounting and cleaning /media"
-	if umount "$dev"
-	then
-	    exitcode=0
-	else
-	    log "Error umounting $dev errcode:$?"
-	    exitcode=$?
-	fi
+        log "$dev device removed, umounting and cleaning /media"
+        if umount "$dev"
+        then
+            exitcode=0
+        else
+            log "Error umounting $dev errcode:$?"
+            exitcode=$?
+        fi
     else
-	log "device doesn't exist anymore or is not a block device: $dev"
-	exitcode=1
+        log "device doesn't exist anymore or is not a block device: $dev"
+        exitcode=1
     fi
 
     # cleanup
     for dir in "$mdir"/*
     do
-	[ -d "$dir" ] && ! mountpoint -q "$dir" && rmdir "$dir"
+        [ -d "$dir" ] && ! mountpoint -q "$dir" && rmdir "$dir"
     done
     exit $exitcode
 fi
@@ -70,15 +70,15 @@ dir="${mdir}/${LABEL:-${dev##*/}}.$TYPE"
 
 case $TYPE in
     vfat)
-	mopts="$mopts,flush,gid=100,dmask=000,fmask=111"
-	;;
+        mopts="$mopts,flush,gid=100,dmask=000,fmask=111"
+        ;;
     ntfs)
-	mopts="$mopts,flush"
-	hash ntfs-3g && mtype="ntfs-3g"
-	;;
+        mopts="$mopts,flush"
+        hash ntfs-3g && mtype="ntfs-3g"
+        ;;
     *)
-	mopts="$mopts,sync"
-	;;
+        mopts="$mopts,sync"
+        ;;
 esac
 
 log "mounting device $dev in $dir"
