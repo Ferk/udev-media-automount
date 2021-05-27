@@ -83,7 +83,7 @@ fi
 AUTOMOUNT_DIR="${mediadir}/${LABEL:-${dev##*/}}.$TYPE"
 
 # Load Filesystem-specific configuration for mounting
-if [ -e "%confdir/$TYPE" ]
+if [ -e "$confdir/$TYPE" ]
 then
 	source "$confdir/$TYPE"
 elif [ -e "$confdir/auto" ]
