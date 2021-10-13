@@ -42,6 +42,7 @@ then
         else
             exitcode=$?
             log "Error umounting $dev errcode:$exitcode"
+            log "Command was: umount $dev"
         fi
     else
         # prevent it from failing on nonexistent devices and degrading systemctl boot
@@ -83,8 +84,9 @@ fi
 AUTOMOUNT_DIR="${mediadir}/${LABEL:-${dev##*/}}.$TYPE"
 
 # Load Filesystem-specific configuration for mounting
-if [ -e "%confdir/$TYPE" ]
+if [ -e "$confdir/$TYPE" ]
 then
+        log "loading configuration for fs type $TYPE"
 	source "$confdir/$TYPE"
 elif [ -e "$confdir/auto" ]
 then
@@ -102,6 +104,8 @@ then
     exit 0
 else
     log "Mount error: $?"
+    log "Command was : mount -t $AUTOMOUNT_TYPE -o $AUTOMOUNT_OPTS $dev $AUTOMOUNT_DIR"
+
     rmdir "$AUTOMOUNT_DIR"
     exit 1
 fi
