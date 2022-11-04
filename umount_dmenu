@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # use dmenu to choose what to unmount
 
 # $1 = msg
@@ -6,13 +6,13 @@ dmenu_notify() {
 	: | dmenu -p "$1 (press enter)"
 }
 
-if [[ $EUID != 0 ]]; then
+if [ "$(id -u)" != 0 ]; then
 	dmenu_notify "Please run it as root"
 	exit 1
 fi
 
 dir="$(awk '$2 ~ /^\/media\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select media device to remove")"
-if [[ ! "$dir" || ! -d "/media/$dir" ]]; then
+if [ -n "$dir" ] || ! [ -d "/media/$dir" ]; then
 	exit 1
 fi
 
