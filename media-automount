@@ -27,7 +27,7 @@ then
     log "missing arguments! a device name must be provided"
     exit 1
 else
-    dev=/dev/${1##*/}  
+    dev=/dev/${1##*/}
 fi
 
 # Check if the device exists, if not but mounted, umount it
@@ -47,7 +47,7 @@ then
     else
         # prevent it from failing on nonexistent devices and degrading systemctl boot
         exitcode=0
-		log "device doesn't exist anymore or is not a block device: $dev"
+        log "device doesn't exist anymore or is not a block device: $dev"
     fi
 
     # cleanup
@@ -65,7 +65,7 @@ eval $(blkid -po export $dev)
 if [ -z "$TYPE" ]
 then
     log "$dev has no known filesystem type, ignoring mount request"
-	exit 0
+    exit 0
 fi
 
 # Check /etc/fstab for an entry corresponding to the device
@@ -86,11 +86,11 @@ AUTOMOUNT_DIR="${mediadir}/${LABEL:-${dev##*/}}.$TYPE"
 # Load Filesystem-specific configuration for mounting
 if [ -e "$confdir/$TYPE" ]
 then
-        log "loading configuration for fs type $TYPE"
-	source "$confdir/$TYPE"
+    log "loading configuration for fs type $TYPE"
+    source "$confdir/$TYPE"
 elif [ -e "$confdir/auto" ]
 then
-	source "$confdir/auto"
+    source "$confdir/auto"
 fi
 
 log "mounting device $dev in $AUTOMOUNT_DIR"
