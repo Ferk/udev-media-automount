@@ -19,12 +19,15 @@ mediadir=/media
 shopt -s nullglob
 
 log() {
-    logger -st "media-automount" "$*"
+    echo "$*" | systemd-cat -p ${loglevel:-info} -t "media-automount"
 }
+
+alias debuglog="loglevel=debug log"
+alias errorlog="loglevel=err log"
 
 if ! [ "$1" ]
 then
-    log "missing arguments! a device name must be provided"
+    errorlog "missing arguments! a device name must be provided"
     exit 1
 else
     dev=/dev/${1##*/}
@@ -41,13 +44,13 @@ then
             exitcode=0
         else
             exitcode=$?
-            log "Error umounting $dev errcode:$exitcode"
-            log "Command was: umount $dev"
+            errorlog "Error umounting $dev errcode:$exitcode"
+            errorlog "Command was: umount $dev"
         fi
     else
         # prevent it from failing on nonexistent devices and degrading systemctl boot
         exitcode=0
-        log "device doesn't exist anymore or is not a block device: $dev"
+        errorlog "device doesn't exist anymore or is not a block device: $dev"
     fi
 
     # cleanup
@@ -64,7 +67,7 @@ eval $(blkid -po export $dev)
 # Devices with unknown type will be ignored
 if [ -z "$TYPE" ]
 then
-    log "$dev has no known filesystem type, ignoring mount request"
+    debuglog "$dev has no known filesystem type, ignoring mount request"
     exit 0
 fi
 
@@ -76,7 +79,7 @@ fstab=$(grep /etc/fstab -e "^[ \t]*$dev[ \t]")
 # Don't manage devices that are already in fstab
 if [ "$fstab" ]
 then
-    log "$dev already in /etc/fstab, automount won't manage it: ${fstab/[ \t][ \t]/ }"
+    debuglog "$dev already in /etc/fstab, automount won't manage it: ${fstab/[ \t][ \t]/ }"
     exit 1
 fi
 
@@ -93,7 +96,7 @@ fi
 # Load Filesystem-specific configuration for mounting
 if [ -e "$confdir/$TYPE" ]
 then
-    log "loading configuration for fs type $TYPE"
+    debuglog "loading configuration for fs type $TYPE"
     source "$confdir/$TYPE"
 elif [ -e "$confdir/auto" ]
 then
@@ -110,8 +113,8 @@ then
     log "Device successfully mounted: $AUTOMOUNT_DIR"
     exit 0
 else
-    log "Mount error: $?"
-    log "Command was : mount -t $AUTOMOUNT_TYPE -o $AUTOMOUNT_OPTS $dev $AUTOMOUNT_DIR"
+    errorlog "Mount error: $?"
+    errorlog "Command was : mount -t $AUTOMOUNT_TYPE -o $AUTOMOUNT_OPTS $dev $AUTOMOUNT_DIR"
 
     rmdir "$AUTOMOUNT_DIR"
     exit 1

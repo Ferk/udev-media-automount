@@ -18,4 +18,4 @@ The mount directory will appear in /media/ under a name with pattern: `<LABEL OF
 
 Due to changes in udev (long running processes are killed), it's necessary to use systemd for spawning a mounting service.
 
-The script will also use the 'logger' tool to write to the system log.
+To check the logs produced by the script, run `journalctl -t media-automount`, add `-b` for current boot.
