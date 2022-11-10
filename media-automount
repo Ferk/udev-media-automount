@@ -56,7 +56,10 @@ then
     # cleanup
     for dir in "$mediadir"/*
     do
-        [ -d "$dir" ] && ! mountpoint -q "$dir" && rmdir "$dir"
+        # Only clean non active mountpoints that have no /etc/fstab entry
+        if [ -d "$dir" ] && ! mountpoint -q "$dir" && awk '$2=="'$dir'"{exit 1}' /etc/fstab; then
+            rmdir "$dir"
+        fi
     done
     exit $exitcode
 fi
