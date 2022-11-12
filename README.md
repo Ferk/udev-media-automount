@@ -19,3 +19,22 @@ The mount directory will appear in /media/ under a name with pattern: `<LABEL OF
 Due to changes in udev (long running processes are killed), it's necessary to use systemd for spawning a mounting service.
 
 To check the logs produced by the script, run `journalctl -t media-automount`, add `-b` for current boot.
+
+Configuration
+-------------
+
+The folder `/etc/media-automount.d` can be used to set custom mount options for specific device types.
+
+If a file with filename matching a filesystem type (eg. `vfat`, `nfts`, `etc`) is found, it'll be loaded when a device using the given filesystem is to be mounted. This can be used to change the parameters provided to `mount`.
+
+An example below for `/etc/media-automount.d/ntfs`:
+
+```
+# Mount options to use for auto-mounting NTFS drives
+AUTOMOUNT_OPTS='errors=remount-ro,relatime,utf8,user,flush'
+
+# Always use NTFS-3G to automount NTFS filesystems
+AUTOMOUNT_TYPE="ntfs-3g"
+```
+
+Note that these files are sourced as shell scripts, so it's possible to include logic in them in case you want to conditionally apply some configuration.
