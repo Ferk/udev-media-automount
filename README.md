@@ -20,6 +20,24 @@ Due to changes in udev (long running processes are killed), it's necessary to us
 
 To check the logs produced by the script, run `journalctl -t media-automount`, add `-b` for current boot.
 
+Installation
+------------
+
+For Archlinux, the [`udev-media-automount` AUR package](https://aur.archlinux.org/packages/udev-media-automount) is offered.
+
+For other systems, you may download the content of the repository from
+https://github.com/Ferk/udev-media-automount/archive/refs/heads/master.zip
+
+You can then install it using the following instructions
+
+```
+unzip master.zip
+cd udev-media-automount-master
+sudo make install
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
 Configuration
 -------------
 
