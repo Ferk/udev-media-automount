@@ -12,11 +12,10 @@ confdir=/etc/media-automount.d
 # Directory to use as parent media dir for mountpoints
 mediadir=/media
 
-[[ $EUID != 0 ]] && {
+[ $(id -u) != 0 ] && {
     echo "This tool requires root permissions"
     exit 1
 }
-shopt -s nullglob
 
 log() {
     echo "$*" | systemd-cat -p ${loglevel:-info} -t "media-automount"
@@ -75,8 +74,8 @@ then
 fi
 
 # Check /etc/fstab for an entry corresponding to the device
-[ "$UUID" ] && fstab=$(grep /etc/fstab -e "^[^#]*${UUID/\-/\\\-}") || \
-[ "$LABEL" ] && fstab=$(grep /etc/fstab -e "^[^#]*${LABEL/\-/\\\-}") || \
+[ "$UUID" ] && fstab=$(grep /etc/fstab -e "^[^#]*${UUID}") || \
+[ "$LABEL" ] && fstab=$(grep /etc/fstab -e "^[^#]*${LABEL}") || \
 fstab=$(grep /etc/fstab -e "^[ \t]*$dev[ \t]")
 
 # Don't manage devices that are already in fstab
@@ -92,7 +91,7 @@ AUTOMOUNT_DIR="${mediadir}/${LABEL:-${dev##*/}}.$TYPE"
 # Avoid conflicts when multiple devices have the same label
 if [ -e "$AUTOMOUNT_DIR" ]
 then
-    dups=$(find ${AUTOMOUNT_DIR}* -maxdepth 1 -printf '.' | wc -c)
+    dups=$(find ${AUTOMOUNT_DIR}* -maxdepth 0 -printf '.' | wc -c)
     AUTOMOUNT_DIR="${AUTOMOUNT_DIR}_$((dups+1))"
 fi
 
@@ -100,10 +99,10 @@ fi
 if [ -e "$confdir/$TYPE" ]
 then
     debuglog "loading configuration for fs type $TYPE"
-    source "$confdir/$TYPE"
+    . "$confdir/$TYPE"
 elif [ -e "$confdir/auto" ]
 then
-    source "$confdir/auto"
+    . "$confdir/auto"
 fi
 
 log "mounting device $dev in $AUTOMOUNT_DIR"
@@ -112,7 +111,7 @@ if mount -t "$AUTOMOUNT_TYPE" -o "$AUTOMOUNT_OPTS" "$dev" "$AUTOMOUNT_DIR"
 then
     # Notify
     username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
-    [[ "$username" ]] && DISPLAY=:0 runuser -u "$username" xdg-open "$AUTOMOUNT_DIR"
+    [ "$username" ] && DISPLAY=:0 runuser -u "$username" xdg-open "$AUTOMOUNT_DIR"
     log "Device successfully mounted: $AUTOMOUNT_DIR"
     exit 0
 else
