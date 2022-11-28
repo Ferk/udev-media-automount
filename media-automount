@@ -81,7 +81,7 @@ fstab=$(grep /etc/fstab -e "^[ \t]*$dev[ \t]")
 # Don't manage devices that are already in fstab
 if [ "$fstab" ]
 then
-    debuglog "$dev already in /etc/fstab, automount won't manage it: ${fstab/[ \t][ \t]/ }"
+    debuglog "$dev already in /etc/fstab, automount won't manage it: ${fstab#\t}"
     exit 0
 fi
 
