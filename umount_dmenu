@@ -12,13 +12,16 @@ if [ "$(id -u)" != 0 ]; then
 fi
 
 dir="$(awk '$2 ~ /^\/media\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select media device to remove")"
-if [ -n "$dir" ] || ! [ -d "/media/$dir" ]; then
+if [ -z "$dir" ] || ! [ -d "/media/$dir" ]; then
 	exit 1
 fi
 
-if umount "/media/$dir"; then
+if result=$(umount "/media/$dir" 2>&1); then
 	rmdir "/media/$dir"
 	dmenu_notify "You can now safely remove $dir"
+	exit 0
 else
-	dmenu_notify "Some apps are using $dir"
+	echo "$result"
+	dmenu_notify "ERROR: $result"
+	exit 1
 fi
