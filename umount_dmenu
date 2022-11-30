@@ -6,13 +6,10 @@ dmenu_notify() {
 	: | dmenu -p "$1 (press enter)"
 }
 
-if [ "$(id -u)" != 0 ]; then
-	dmenu_notify "Please run it as root"
-	exit 1
-fi
-
 dir="$(awk '$2 ~ /^\/media\// {print $2}' /etc/mtab | cut -d / -f 3 | dmenu -p "Select media device to remove")"
+dir=$(printf $dir) # cleanup escaped chars
 if [ -z "$dir" ] || ! [ -d "/media/$dir" ]; then
+	echo "invalid selection: '$dir'"
 	exit 1
 fi
 
@@ -23,5 +20,5 @@ if result=$(umount "/media/$dir" 2>&1); then
 else
 	echo "$result"
 	dmenu_notify "ERROR: $result"
-	exit 1
+	exit 32
 fi
