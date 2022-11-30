@@ -2,7 +2,7 @@
 #$1 = <dev>
 
 # Default options to use for mounting
-AUTOMOUNT_OPTS='errors=remount-ro,relatime,utf8,users'
+AUTOMOUNT_OPTS='users'
 # Default type to use for mounting
 AUTOMOUNT_TYPE='auto'
 
