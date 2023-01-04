@@ -56,7 +56,7 @@ then
     for dir in "$mediadir"/*
     do
         # Only clean non active mountpoints that have no /etc/fstab entry
-        if [ -d "$dir" ] && ! mountpoint -q "$dir" && ! grep -q "^\s*[^#\s]\+\s${dir}" /etc/fstab; then
+        if [ -d "$dir" ] && ! mountpoint -q "$dir" && ! grep -q "^\s*[^#\s]\+\s\+${dir}" /etc/fstab; then
             rmdir "$dir"
         fi
     done
