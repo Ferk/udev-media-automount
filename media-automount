@@ -132,7 +132,7 @@ do
             errorlog "Mount failed after $attempts attempts. Giving up."
             exit 1
         else
-            errorlog "Mount failed. Retrying in $retry_interval seconds..."
+            errorlog "Mount failed. Attempt $attempts. Retrying in $retry_interval seconds..."
             sleep $retry_interval
         fi
     fi
