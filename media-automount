@@ -86,7 +86,7 @@ then
 fi
 
 # directory name
-AUTOMOUNT_DIR="${mediadir}/${LABEL:-${UUID: -4}}.$TYPE"
+AUTOMOUNT_DIR="${mediadir}/$UUID.$TYPE"
 
 
 # Avoid conflicts when multiple devices have the same label
