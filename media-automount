@@ -90,11 +90,11 @@ AUTOMOUNT_DIR="${mediadir}/$UUID.$TYPE"
 
 
 # Avoid conflicts when multiple devices have the same label
-if [ -e "$AUTOMOUNT_DIR" ] && mountpoint -q "$AUTOMOUNT_DIR"
-then
-    dups=$(find "${AUTOMOUNT_DIR}*" -maxdepth 0 -printf '.' | wc -c)
-    AUTOMOUNT_DIR="${AUTOMOUNT_DIR}_$((dups+1))"
-fi
+#if [ -e "$AUTOMOUNT_DIR" ] && mountpoint -q "$AUTOMOUNT_DIR"
+#then
+#    dups=$(find "${AUTOMOUNT_DIR}*" -maxdepth 0 -printf '.' | wc -c)
+#    AUTOMOUNT_DIR="${AUTOMOUNT_DIR}_$((dups+1))"
+#fi
 
 # Load Filesystem-specific configuration for mounting
 if [ -e "$confdir/$TYPE" ]
