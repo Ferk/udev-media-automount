@@ -106,19 +106,37 @@ then
     . "$confdir/auto"
 fi
 
+# Attempt Mounting Device
+max_attempts=3
+retry_interval_min=4
+retry_interval_max=10
+attempts=0
+
 log "mounting device $dev in $AUTOMOUNT_DIR"
 mkdir -p "$AUTOMOUNT_DIR"
-if mount -t "$AUTOMOUNT_TYPE" -o "$AUTOMOUNT_OPTS" "$dev" "$AUTOMOUNT_DIR"
-then
-    # Notify
-    username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
-    [ "$username" ] && DISPLAY=:0 runuser -u "$username" xdg-open "$AUTOMOUNT_DIR"
-    log "Device successfully mounted: $AUTOMOUNT_DIR"
-    exit 0
-else
-    errorlog "Mount error: $?"
-    errorlog "Command was : mount -t $AUTOMOUNT_TYPE -o $AUTOMOUNT_OPTS $dev $AUTOMOUNT_DIR"
 
-    rmdir "$AUTOMOUNT_DIR"
-    exit 1
-fi
+while true
+do
+    if mount -t "$AUTOMOUNT_TYPE" -o "$AUTOMOUNT_OPTS" "$dev" "$AUTOMOUNT_DIR"
+    then
+        # Notify
+        username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
+        [ "$username" ] && DISPLAY=:0 runuser -u "$username" xdg-open "$AUTOMOUNT_DIR"
+        log "Device successfully mounted: $AUTOMOUNT_DIR"
+        exit 0
+    else
+        errorlog "Mount error: $?"
+        errorlog "Command was : mount -t $AUTOMOUNT_TYPE -o $AUTOMOUNT_OPTS $dev $AUTOMOUNT_DIR"
+        rmdir "$AUTOMOUNT_DIR"
+        attempts=$((attempts+1))
+        if [ $attempts -ge $max_attempts ]
+        then
+            errorlog "Mount failed after $attempts attempts. Giving up."
+            exit 1
+        else
+            retry_interval=$((RANDOM % ($retry_interval_max-$retry_interval_min+1) + $retry_interval_min))
+            errorlog "Mount failed. Retrying in $retry_interval seconds..."
+            sleep $retry_interval
+        fi
+    fi
+done
