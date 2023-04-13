@@ -107,9 +107,9 @@ then
 fi
 
 # Attempt Mounting Device
-max_attempts=3
-retry_interval_min=4
-retry_interval_max=10
+max_attempts=5
+retry_interval_min=2
+retry_interval_max=6
 attempts=0
 
 log "mounting device $dev in $AUTOMOUNT_DIR"
