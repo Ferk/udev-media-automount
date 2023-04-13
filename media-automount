@@ -108,8 +108,7 @@ fi
 
 # Attempt Mounting Device
 max_attempts=5
-retry_interval_min=2
-retry_interval_max=6
+retry_interval=5
 attempts=0
 
 while true
@@ -133,7 +132,6 @@ do
             errorlog "Mount failed after $attempts attempts. Giving up."
             exit 1
         else
-            retry_interval=$((RANDOM % ($retry_interval_max-$retry_interval_min+1) + $retry_interval_min))
             errorlog "Mount failed. Retrying in $retry_interval seconds..."
             sleep $retry_interval
         fi
