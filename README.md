@@ -38,6 +38,20 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 
+After installation, go to: `/etc/media-automount.d/auto` and indicate under which user the software should run (AUTOMOUNT_OPTS). Runs as root by default and mounted media will only be writable by root.
+
+```
+# -*- sh -*-
+
+# Options to use for auto-mounting generic filesystems
+AUTOMOUNT_OPTS='users'
+
+# Type to use for auto-mounting generic filesystems
+AUTOMOUNT_TYPE=auto
+```
+
+
+
 Configuration
 -------------
 
