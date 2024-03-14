@@ -32,6 +32,12 @@ else
     dev=/dev/${1##*/}
 fi
 
+if [ "$dev" = "$(findmnt -n -o SOURCE /)" ]
+then
+	log "$dev is used as rootfs, automount won't manage it"
+	exit 0
+fi
+
 # Check if the device exists, if not but mounted, umount it
 if ! [ -b $dev ]
 then
