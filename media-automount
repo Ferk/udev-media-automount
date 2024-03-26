@@ -75,7 +75,7 @@ fi
 
 # Check /etc/fstab for an entry corresponding to the device
 [ "$UUID" ] && fstab=$(grep /etc/fstab -e "^[^#]*${UUID}") || \
-[ "$LABEL" ] && fstab=$(grep /etc/fstab -e "^[^#]*${LABEL}") || \
+[ "$LABEL" ] && fstab=$(grep /etc/fstab -e "^[^# ]*${LABEL}") || \
 fstab=$(grep /etc/fstab -e "^[ \t]*$dev[ \t]")
 
 # Don't manage devices that are already in fstab
