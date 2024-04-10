@@ -24,6 +24,15 @@ log() {
 alias debuglog="loglevel=debug log"
 alias errorlog="loglevel=err log"
 
+acquire_lock() {
+	exec 3>/var/run/media-automount.lock
+	flock -x 3
+}
+
+release_lock() {
+	exec 3>&-
+}
+
 if ! [ "$1" ]
 then
     errorlog "missing arguments! a device name must be provided"
@@ -37,6 +46,8 @@ then
 	log "$dev is used as rootfs, automount won't manage it"
 	exit 0
 fi
+
+acquire_lock
 
 # Check if the device exists, if not but mounted, umount it
 if ! [ -b $dev ]
@@ -66,7 +77,7 @@ then
             rmdir "$dir"
         fi
     done
-    exit $exitcode
+    release_lock; exit $exitcode
 fi
 
 # Load additional info for the block device
@@ -76,7 +87,7 @@ eval $(blkid -po export $dev)
 if [ -z "$TYPE" ]
 then
     debuglog "$dev has no known filesystem type, ignoring mount request"
-    exit 0
+    release_lock; exit 0
 fi
 
 # Check /etc/fstab for an entry corresponding to the device
@@ -88,7 +99,7 @@ fstab=$(grep /etc/fstab -e "^[ \t]*$dev[ \t]")
 if [ "$fstab" ]
 then
     debuglog "$dev already in /etc/fstab, automount won't manage it: ${fstab#\t}"
-    exit 0
+    release_lock; exit 0
 fi
 
 # directory name
@@ -119,11 +130,11 @@ then
     username="$(ps au | awk '$11 ~ /^xinit/ { print $1; exit }')"
     [ "$username" ] && DISPLAY=:0 runuser -u "$username" xdg-open "$AUTOMOUNT_DIR"
     log "Device successfully mounted: $AUTOMOUNT_DIR"
-    exit 0
+    release_lock; exit 0
 else
     errorlog "Mount error: $?"
     errorlog "Command was : mount -t $AUTOMOUNT_TYPE -o $AUTOMOUNT_OPTS $dev $AUTOMOUNT_DIR"
 
     rmdir "$AUTOMOUNT_DIR"
-    exit 1
+    release_lock; exit 1
 fi
