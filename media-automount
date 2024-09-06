@@ -25,12 +25,12 @@ alias debuglog="loglevel=debug log"
 alias errorlog="loglevel=err log"
 
 acquire_lock() {
-	exec 3>/var/run/media-automount.lock
-	flock -x 3
+    exec 3>/var/run/media-automount.lock
+    flock -x 3
 }
 
 release_lock() {
-	exec 3>&-
+    exec 3>&-
 }
 
 if ! [ "$1" ]
@@ -43,8 +43,8 @@ fi
 
 if [ "$dev" = "$(findmnt -n -o SOURCE /)" ]
 then
-	log "$dev is used as rootfs, automount won't manage it"
-	exit 0
+    log "$dev is used as rootfs, automount won't manage it"
+    exit 0
 fi
 
 acquire_lock
@@ -91,12 +91,13 @@ then
 fi
 
 # Check /etc/fstab for an entry corresponding to the device
-[ "$UUID" ] && fstab=$(grep /etc/fstab -e "^[^#]*UUID=${UUID}") || \
-[ "$LABEL" ] && fstab=$(grep /etc/fstab -e "^[^#]*LABEL=${LABEL}") || \
+fstab=$([ ! "x${PART_ENTRY_UUID}" = "x" ] && grep /etc/fstab -e "^[^#]*PARTUUID=${PART_ENTRY_UUID}") || \
+fstab=$([ ! "x${UUID}" = "x" ] && grep /etc/fstab -e "^[^#]*UUID=${UUID}") || \
+fstab=$([ ! "x${LABEL}" = "x" ] && grep /etc/fstab -e "^[^#]*LABEL=${LABEL}") || \
 fstab=$(grep /etc/fstab -e "^[ \t]*$dev[ \t]")
 
 # Don't manage devices that are already in fstab
-if [ "$fstab" ]
+if [ ! "x$fstab" = "x" ]
 then
     debuglog "$dev already in /etc/fstab, automount won't manage it: ${fstab#\t}"
     release_lock; exit 0
@@ -112,11 +113,21 @@ then
     AUTOMOUNT_DIR="${AUTOMOUNT_DIR}_$((dups+1))"
 fi
 
+# Load PARTUUID-specific configuration for mounting
+if [ ! "x${PART_ENTRY_UUID}" = "x" ] && [ -e "$confdir/${PART_ENTRY_UUID}.partuuid" ]
+then
+    debuglog "loading configuration for PARTUUID $PART_ENTRY_UUID"
+    . "${confdir}/${PART_ENTRY_UUID}.partuuid"
+# Load UUID-specific configuration for mounting
+elif [ ! "x${UUID}" = "x" ] && [ -e "${confdir}/${UUID}.uuid" ]
+then
+    debuglog "loading configuration for UUID $UUID"
+    . "${confdir}/${UUID}.uuid"
 # Load Filesystem-specific configuration for mounting
-if [ -e "$confdir/$TYPE" ]
+elif [ ! "x${TYPE}" = "x" ] && [ -e "${confdir}/${TYPE}.type" ]
 then
     debuglog "loading configuration for fs type $TYPE"
-    . "$confdir/$TYPE"
+    . "${confdir/$TYPE}.type"
 elif [ -e "$confdir/auto" ]
 then
     . "$confdir/auto"
