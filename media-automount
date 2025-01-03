@@ -30,6 +30,7 @@ acquire_lock() {
 }
 
 release_lock() {
+    flock -u 3
 	exec 3>&-
 }
 
